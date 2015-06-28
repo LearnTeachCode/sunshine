@@ -1,7 +1,10 @@
 '''
-Created on Jun 19, 2015
+Created on June 19, 2015
 This application displays which politicians are involved in the keywords
 the user has provided
+
+06-28-15
+To-do: output file as corpus
 
 @author: 
     Sina Tuy
@@ -53,11 +56,11 @@ def main():
     #pprint(j_string)
     
     #create file of json response for testing
-    file_out = open('sunlight-output-LongVersion.txt', 'w')
+    file_out = open('output\sunlight-output-LongVersion.txt', 'w')
     file_out.writelines(json.dumps(j_string, indent=4, sort_keys=True))
     
     #create TXT file for output
-    file_out = open('sunlight-output-shortVersion-tab.txt', 'w')
+    file_out = open('output\sunlight-output-shortVersion-corpus.txt', 'w')
 
     #create Objects for runtime manipulation
     for item in json_data['results']:
@@ -77,12 +80,18 @@ def main():
             candidate_list.get(item['bioguide_id']).addMessage(item['speaking'], item['date'], item['title'])
             
             #write to TXT file
-            file_out.writelines(item['speaker_last'])
-            file_out.writelines(', ')
-            file_out.writelines(item['speaker_first'])
-            file_out.writelines('\t')
-            file_out.writelines(json.dumps(item['speaking']))
-            file_out.writelines('\n')
+            #file_out.writelines('[')
+            file_out.writelines('"')
+            #file_out.writelines(item['speaker_last'])
+            #file_out.writelines(', ')
+            #file_out.writelines(item['speaker_first'])
+            #file_out.writelines('\t')
+            #words = json.dumps(item['speaking'])
+            #words.replace("[", "")
+            file_out.writelines(item['speaking'])
+            file_out.writelines('"')
+            file_out.writelines(',')
+            #file_out.writelines('\n')
             
     #close files
     file_out.close()

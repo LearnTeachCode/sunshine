@@ -1,7 +1,10 @@
 '''
-Created on Jun 25, 2015
+Created on June 25, 2015
 
 Holds the message of a speaking legislator
+
+06-28-15
+To-do: change to proper object syntax
 
 @author: 
     Sina Tuy

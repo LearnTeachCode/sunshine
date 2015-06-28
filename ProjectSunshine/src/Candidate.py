@@ -1,10 +1,11 @@
 '''
-Created on Jun 20, 2015
+Created on June 20, 2015
 Candidate Object is the speaking legislator
 Candidate holds a list of messages (spoken word)
 
 06-27-15
 To-do: fix error from text
+change to proper object syntax
 
 @author: 
     Sina Tuy
