@@ -1,8 +1,10 @@
 '''
 Created on Jun 20, 2015
-Candidate Object that stores:
-name
-message
+Candidate Object is the speaking legislator
+Candidate holds a list of messages (spoken word)
+
+06-27-15
+To-do: fix error from text
 
 @author: 
     Sina Tuy
@@ -11,7 +13,7 @@ message
     Kendra Branton
     Hong Luu
 '''
-from MessageObject import *
+from Message import *
 
 class CandidateObject():
     def __init__(self, id, first_name, last_name, party):
@@ -30,6 +32,6 @@ class CandidateObject():
         for message in self.message_list:
             messages += "\ntitle: " + message.title
             messages += "\ndate: " + message.date
-#             messages += "\ntext: " + message.text
+#             messages += "\ntext: " + Message.text
         return messages
             
