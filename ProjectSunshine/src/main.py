@@ -1,7 +1,11 @@
 '''
-Created on Jun 19, 2015
+Created on June 19, 2015
 This application displays which politicians are involved in the keywords
-    the user has provided
+the user has provided
+
+06-28-15
+To-do: output file as corpus
+
 @author: 
     Sina Tuy
     Kiron Roy
@@ -12,67 +16,102 @@ This application displays which politicians are involved in the keywords
 import urllib2
 import json
 from Candidate import *
-import MessageObject
 from pprint import pprint
+from tfidf import lsa_2
 
 def main():
+    #key
     file_in = open('sunlight.key', 'r')
+    #read key file
     api_key = file_in.read()
+    #close file
+    file_in.close()
+    
+    #init list
     candidate_list = {}
 
-    # no longer need file_in
-    file_in.close()
-
-    phrase = ""
-    while phrase == "":
-        phrase = str(raw_input("Enter phrase: "))
-    url = ("http://capitolwords.org/api/1/text.json?phrase="+phrase+
-           "&page=0&state=CA&start_date=2010-01-01&end_date=2015-12-12"+
-           "&apikey="+api_key)  
+    #get user inputs
+    phrase = str(raw_input("Enter keyword phrase:\n "))
+    start_date = str(raw_input("Enter start date (e.g. 2010-01-01):\n "))
+    end_date = str(raw_input("Enter end date (e.g. 2015-12-12):\n "))
     
-    print "My api key is:", api_key
-    print "My url is:", url
+    #setup url for request
+    url = ("http://capitolwords.org/api/1/text.json?phrase=" 
+        + phrase + "&page=0&state=CA&start_date=" 
+        + start_date + "&end_date="
+        + end_date + "&apikey=" 
+        + api_key)  
+    
+    #print "My api key is:", api_key
+    #print "My url is:", url
+    
+    #make request
     request = urllib2.Request(url)
     opener = urllib2.build_opener()
-    f = opener.open(request)
-    
-    # no longer need opener
+    f = opener.open(request)   
+    #close request
     opener.close()
 
+    #get json response
     json_data = json.load(f)
     j_string = byteify(json_data)
-#     pprint(j_string)
+    #pprint(j_string)
     
-    file_out = open('sunlight-output-LongVersion.txt', 'w')
+    #create file of json response for testing
+    file_out = open('output\sunlight-output-LongVersion.txt', 'w')
     file_out.writelines(json.dumps(j_string, indent=4, sort_keys=True))
+    
+    #create TXT file for output
+    file_out = open('output\sunlight-output-shortVersion-corpus.txt', 'w')
 
-    file_out = open('sunlight-output-ShortVersion.txt', 'w')
-
+    #create Objects for runtime manipulation
     for item in json_data['results']:
+        #if in the JSON response, the candidate speaks
         if item['speaking'] != '':
-            # check if candidate does not exist
-            # if candidate does exist, skip this
+            #check if Candidate does not exist in list
+            #if Candidate does exist, skip this
             if candidate_list.has_key(item['bioguide_id']) == False:
-                candidate = CandidateObject(item['bioguide_id'], item['speaker_first'], item['speaker_last'],item['speaker_party'])
+                candidate = CandidateObject(item['bioguide_id'],
+                item['speaker_first'], item['speaker_last'],
+                item['speaker_party'])
+                #add Candidate to list of candidates
+                candidate_list[item['bioguide_id']] = candidate
                 
-                # add candidate to list of candidates if not exist
-            candidate_list[item['bioguide_id']] = candidate
-                
-            # add message to candidate
+            #add Message to existing Candidate
             candidate_list.get(item['bioguide_id']).addMessage(item['speaking'], item['date'], item['title'])
             
-            file_out.writelines(item['speaker_last'])
+            #write to TXT file
+            #file_out.writelines('[')
+            file_out.writelines('"')
+            #file_out.writelines(item['speaker_last'])
+            #file_out.writelines(', ')
+            #file_out.writelines(item['speaker_first'])
+            #file_out.writelines('\t')
+            #words = json.dumps(item['speaking'])
+            #words.replace("[", "")
+            file_out.writelines(item['speaking'])
+            file_out.writelines('"')
             file_out.writelines(',')
-            file_out.writelines(item['speaker_first'])
-            file_out.writelines('\n')
-            file_out.writelines(json.dumps(item['speaking'], indent=4))
-            file_out.writelines('\n\n')
-
+            #file_out.writelines('\n')
+            
+    #close files
     file_out.close()
     
-    print(candidate_list.get('F000116').getMessage())
+    #test Object
+#     print(candidate_list.get('C001059').printWords())
+#     candidate_list.get('C001059').setTopWords()
+#     top_words_data = candidate_list.get('C001059').getTopWords()
+#     top_words = byteify(top_words_data)
+#     print ("\nThe top words and their respective occurrence are:")
+#     pprint (top_words)
+
+    counter = 0
+    for candidate in candidate_list:
+        if counter < 3:
+            candidate_list.get(candidate).printLSA()
+            counter += 1
     
-# used to get rid of that 'u' in the JSON format
+#used to get rid of that 'u' in the JSON format
 def byteify(json_data):
     if isinstance(json_data, dict):
         return {byteify(key):byteify(value) for key,value in json_data.iteritems()}
@@ -82,6 +121,8 @@ def byteify(json_data):
         return json_data.encode('utf-8')
     else:
         return json_data
+    
 
+#program entry
 if __name__=="__main__":
     main()
